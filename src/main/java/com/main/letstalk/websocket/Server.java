@@ -82,35 +82,33 @@ public class Server {
             //若对方在在线表中，发送给对方
             if (onLineList.containsKey(String.valueOf(message.getTo()))) {
                 onLineList.get(String.valueOf(message.getTo())).sendMessage(message);
-                System.out.println("Type 0 sent!");
             }
             //若对方不在线，则不作操作，将消息发送任务交给离线消息推送机制
         }
         else {
             //获取群成员列表
+            System.out.println(JSON.toJSON(message));
             List<UserGroupRelation> ugrList = uggr.findByGroupId(message.getTo());
             //对每个群成员推送消息
             for (UserGroupRelation ugr : ugrList) {
                 //对在线的群成员即时推送消息
-                if (onLineList.containsKey(String.valueOf(ugr.getUserId()))) {
-                    onLineList.get(String.valueOf(message.getTo())).sendMessage(message);
-                    System.out.println("Type 1 sent!");
+                String userId = String.valueOf(ugr.getUserId());
+                if (onLineList.containsKey(userId)) {
+                    onLineList.get(userId).sendMessage(message);
                 }
                 //离线的群成员存储单独的群消息，用于离线消息推送
                 else {
-                    message.setType(3);
-                    message.setFrom(ugr.getGroupId());
-                    message.setTo(ugr.getUserId());
-                    messageService.save(message);
+                    messageService.save(new Message(message.getTo(), Integer.parseInt(userId), 3,
+                            "Use for group message notice. {from : groupId, to : userId, type : 3}"));
                 }
             }
 
         }
     }
-    @OnError
-    public void onError(Session session, Throwable throwable){
-        System.out.println("error....");
-    }
+//    @OnError
+//    public void onError(Session session, Throwable throwable){
+//        System.out.println("error....");
+//    }
 
     /**
      * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。

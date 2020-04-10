@@ -29,19 +29,37 @@ function closeWebSocket() {
 function handleReceiveMessage(message) {
     var record = JSON.parse(message);
     if (record.type === 0) {
-        if (currentChatObject === record.to) {
+        // 当前聊天窗口为此好友，直接显示
+        if (currentChatUser === record.to) {
             Message.show(record);
-            ChatModule.Window.autoScroll();
         }
+        // 当前聊天窗口非此好友，通知
         else if (record.isReceived === 0 || currentChatObject !== record.to) {
             SideBarModule.Friends.notice(record.from);
-        } else {
-            console.log('el');
         }
-    } else if (record.type === 2) {
+        // 其它情况，通报异常
+        else {
+            console.log('exception in handleReceivedMessage (type === 0)');
+        }
+    }
+    else if (record.type === 1) {
+        console.log(currentChatGroup);
+        // 收到群组消息，且当前窗口为该群组，直接显示消息
+        if (currentChatGroup === record.to) {
+            Message.show(record);
+        }
+        // 收到的群组消息不是当前窗口，改为通知
+        else {
+            SideBarModule.Groups.notice(record.to);
+        }
+    }
+    // 收到好友添加请求
+    else if (record.type === 2) {
         SideBarModule.Friends.friendAddNotice(record);
-    } else if (record.type === 3){
-        console.log('else00');
+    }
+    // 收到离线未读群组消息
+    else if (record.type === 3 && record.isReceived === 0){
+        SideBarModule.Groups.notice(record.from);
     }
 }
 

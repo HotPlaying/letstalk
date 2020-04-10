@@ -32,7 +32,13 @@ public class Message {
     @Column(name = "is_received")
     private int isReceived;
 
-
+    public Message() {}
+    public Message(int from, int to, int type, String content) {
+        this.from = from;
+        this.to = to;
+        this.type = type;
+        this.content = content;
+    }
 
     public int getId() {
         return id;

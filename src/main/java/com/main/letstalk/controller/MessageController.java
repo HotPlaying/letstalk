@@ -51,4 +51,9 @@ public class MessageController {
         record.put("record", messageListString);
         return record;
     }
+
+    @PostMapping("/cleanGroupReceived")
+    public void cleanGroupReceived(int groupId, int userId) {
+        messageService.deleteGroupMessageReceived(groupId, userId);
+    }
 }

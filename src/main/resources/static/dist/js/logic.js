@@ -2,6 +2,7 @@
 //
 <!-- 用户信息请求模块 -->
 var UserManagement = {
+    // 通过用户编号获取用户名
     getUserNameByUserId: function (userId) {
         let userName = null;
         $.ajax({
@@ -23,6 +24,8 @@ var UserManagement = {
         });
         return userName;
     },
+
+    // 获取当前用户
     getCurrentUser: function () {
         let currentUser = null;
         $.ajax({
@@ -40,6 +43,8 @@ var UserManagement = {
         });
         return currentUser;
     },
+
+    // 获取当前用户的编号
     getCurrentUserId: function () {
         var currentUserId = null;
         $.ajax({
@@ -59,8 +64,9 @@ var UserManagement = {
         });
         return currentUserId;
     },
-    detail: {
-        getByUserId: function (userId) {
+
+    // 通过用户编号获取用户详细信息
+    getDetailByUserId: function (userId) {
             let userDetail = null;
             $.ajax({
                 async: false,
@@ -81,7 +87,8 @@ var UserManagement = {
             });
             return userDetail;
         },
-    },
+
+    // 请求后台系统添加好友关系记录
     addFriend: function (friendId) {
         $.ajax({
             async: false,
@@ -100,7 +107,9 @@ var UserManagement = {
             }
         });
     },
-    saveUserDetail(userDetail){
+
+    // 保存用户详细信息
+    saveUserDetail(userDetail) {
         $.ajax({
             async: false,
             url: '/saveUserDetail',
@@ -121,7 +130,8 @@ var UserManagement = {
 <!-- ./ 用户信息请求模块 -->
 <!-- 群组信息请求模块 -->
 var GroupManagement = {
-    getDetailByGroupId(groupId){
+    // 通过群组编号获取群组详细信息
+    getDetailByGroupId(groupId) {
         let groupDetail = null;
         $.ajax({
             async: false,
@@ -143,7 +153,9 @@ var GroupManagement = {
         console.log(groupDetail)
         return groupDetail;
     },
-    createGroup(group){
+
+    // 建立群组
+    createGroup(group) {
         $.ajax({
             async: false,
             url: '/saveGroup',
@@ -152,7 +164,7 @@ var GroupManagement = {
             dataType: 'json',
             success: function (newgroup) {
                 if (newgroup != null)
-                    alert('Create Group Success!/nYour group Id is ['+newgroup.groupId+']');
+                    alert('Create Group Success!/nYour group Id is [' + newgroup.groupId + ']');
                 else alert('!!');
             },
             error: function (result) {
@@ -160,7 +172,9 @@ var GroupManagement = {
             }
         });
     },
-    joinGroup(groupId){
+
+    // 请求后台系统添加群组关系记录，改变群组成员等
+    joinGroup(groupId) {
         $.ajax({
             async: false,
             type: 'POST',
@@ -169,7 +183,7 @@ var GroupManagement = {
             dataType: 'text',
             success: function (isSent) {
                 if (isSent != null)
-                    layer.msg('Group joining success.',{icon:2});
+                    layer.msg('Group joining success.', {icon: 2});
                 else
                     alert("fail1");
             },
@@ -182,34 +196,51 @@ var GroupManagement = {
 <!-- ./ 群组信息请求模块 -->
 
 <!-- 全局变量与事件触发 -->
+
 <!--    全局变量 -->
+// 当前用户
 var currentUserId = UserManagement.getCurrentUserId();
+
+// 当前窗口的聊天用户对象，初次载入时为空，未打开任何窗口
 var currentChatUser = null;
+
+// 当前窗口的聊天群组对象，初次载入时为空，未打开任何窗口
 var currentChatGroup = null;
 <!--   ./ 全局变量 -->
+
 <!--    事件触发 -->
+// 用户主界面载入时加载的内容
 window.onload = function () {
+    // 加载好友列表
     SideBarModule.Friends.load();
+    // 加载群组列表
     SideBarModule.Groups.load();
 };
+// 屏蔽聊天输入框表单的默认操作
 $(document).on('submit', '#chatFooter form', function (e) {
     e.preventDefault();
 });
+// 点击 编辑个人信息 按钮
 $('#editCurrentUserDetail').click(function () {
     EjectModule.editProfile();
 });
+// 点击 保存个人信息 按钮
 $('#saveUserDetail').click(function () {
     EjectModule.saveProfile();
 });
+// 点击 查看个人信息 按钮
 $('#loadCurrentUserDetail').click(function () {
     SideBarModule.Profile.loadById(currentUserId);
 });
+// 点击 查找用户 按钮
 $('#searchUserButton').click(function () {
     EjectModule.searchUser();
 });
+// 点击 创建群组 按钮
 $('#createGroupButton').click(function () {
     EjectModule.createGroup();
 });
+// 点击 查找群组 按钮
 $('#searchGroupButton').click(function () {
     EjectModule.searchGroup();
 });
@@ -218,6 +249,7 @@ $('#searchGroupButton').click(function () {
 
 <!-- 信息模块 -->
 var Message = {
+    // 将消息交由后台服务器处理
     send: function (to, content, type) {
         websocket.send(JSON.stringify({
             from: currentUserId,
@@ -226,6 +258,8 @@ var Message = {
             type: type,
         }))
     },
+
+    // 显示消息
     show: function (record) {
         fromName = UserManagement.getUserNameByUserId(record.from)
         $('.layout .content .chat .chat-body .messages').append(
@@ -246,12 +280,9 @@ var Message = {
 
         ChatModule.Window.autoScroll();
     },
-    Notice: {
-        show: function (record) {
-            alert(record);
-        }
-    },
-    setReceived : function (message) {
+
+    // 用于一对一聊天，设置离线消息为已读，防止再次通知
+    setReceived: function (message) {
         $.ajax({
             async: false,
             url: '/setReceived',
@@ -260,13 +291,15 @@ var Message = {
             dataType: 'json',
         });
     },
-    getRecord: function (to,type) {
+
+    // 获取聊天记录
+    getRecord: function (to, type) {
         var messageList = null;
         $.ajax({
             async: false, //设置同步
             type: 'POST',
             url: (type == 0 ? '/getMessageRecord' : '/getGroupMessageRecord'),
-            data: {ida: currentUserId, idb: to},
+            data: (type == 0 ? {ida: currentUserId, idb: to} : {groupId: to}),
             dataType: 'json',
             success: function (record) {
                 if (record != null) {
@@ -283,6 +316,15 @@ var Message = {
         messageList = eval("(" + messageList + ")");
         return messageList;
     },
+
+    // 清理已经查看了的群组离线消息，防止再次通知
+    cleanGroupReceived(groupId) {
+        $.ajax({
+            url: '/cleanGrouupReceived',
+            data: {groupId: groupId, userId: currentUserId},
+            type: 'post',
+        });
+    }
 };
 <!-- ./ 信息模块 -->
 
@@ -290,6 +332,7 @@ var Message = {
 
 <!--    弹出层模块 -->
 var EjectModule = {
+    // 查找用户，弹出用户信息窗口
     searchUser: function () {
         var userId = $(" input[ id='userId']").val();
         if (userId !== null) {
@@ -299,12 +342,16 @@ var EjectModule = {
             });
         }
     },
+
+    // 添加好友请求消息的发送弹出窗口
     addFriendMessage: function (userId) {
         var content = $(" textarea[ id='requestContent']").val();
         Message.send(userId, content, 2);
     },
+
+    // 编辑用户信息窗口
     editProfile: function () {
-        var userDetail = UserManagement.detail.getByUserId(currentUserId);
+        var userDetail = UserManagement.getDetailByUserId(currentUserId);
         var html = `<div class="tab-content">
                     <div class="tab-pane show active" id="personal" role="tabpanel">
                         <form>
@@ -356,6 +403,8 @@ var EjectModule = {
                 </div>`;
         $('#profileEditBody').html(html);
     },
+
+    // 获取用户信息并交由后台保存
     saveProfile: function () {
         let jsonUserDetail = {
             userId: currentUserId,
@@ -369,7 +418,9 @@ var EjectModule = {
         console.log(jsonUserDetail);
         UserManagement.saveUserDetail(jsonUserDetail);
     },
-    createGroup(){
+
+    // 填写群组信息创建群组
+    createGroup() {
         let jsonGroup = {
             creatorId: currentUserId,
             groupIntro: $(" input[ id='groupIntro' ] ").val(),
@@ -377,7 +428,9 @@ var EjectModule = {
         };
         GroupManagement.createGroup(jsonGroup);
     },
-    searchGroup(){
+
+    // 查找群组并选择是否添加
+    searchGroup() {
         var groupId = $(" input[ id='groupId']").val();
         if (groupId !== null) {
             SideBarModule.Profile.loadByGroupId(groupId);
@@ -392,7 +445,9 @@ var EjectModule = {
 
 <!--    侧边列表模块 -->
 var SideBarModule = {
+    // 好友列表侧边栏
     Friends: {
+        // 载入好友列表视图
         load: function () {
             var allFriends = SideBarModule.Friends.get();
             var listDiv = document.getElementById("friendList");
@@ -416,6 +471,8 @@ var SideBarModule = {
             console.log("Friends loads");
             listDiv.innerHTML = html;
         },
+
+        // 从后台系统获取好友列表
         get: function () {
             var allFriends = null;
             $.ajax({
@@ -437,9 +494,13 @@ var SideBarModule = {
             allFriends = eval("(" + allFriends + ")");
             return allFriends;
         },
+
+        // 好友消息通知（在好友头像旁添加红点）
         notice: function (userId) {
             $('#avatarId' + userId).addClass('avatar-state-danger');
         },
+
+        // 好友添加请求通知（好友列表视图添加一行好友添加信息）
         friendAddNotice: function (message) {
             $('#friendList').append(`<li class="list-group-item" >
                             <div id="fI` + message.id + `" class="users-list-body" data-toggle="modal" data-target="#addFriendInvitationAcceptor">
@@ -452,7 +513,7 @@ var SideBarModule = {
                         </li>`);
             $('#fI' + message.id).click(function () {
                 $('#invitationBody').html(`<div class="mt-4 mb-4">
-                                    <h6>`+ UserManagement.getUserNameByUserId(message.from) +`</h6>
+                                    <h6>` + UserManagement.getUserNameByUserId(message.from) + `</h6>
                                     <hr>
                                     <p class="text-muted">` + message.content + `</p>`);
                 message = JSON.stringify(message);
@@ -469,9 +530,12 @@ var SideBarModule = {
             });
         },
     },
+
+    // 个人信息侧边栏
     Profile: {
+        // 通过个人编号载入个人信息
         loadById: function (userId, type) {
-            var userDetail = UserManagement.detail.getByUserId(userId);
+            var userDetail = UserManagement.getDetailByUserId(userId);
             var html;
             if (userDetail == null) {
                 html = `<h3>User is not exist, try to search another Id</h3>`;
@@ -504,7 +568,9 @@ var SideBarModule = {
                     '<a class="btn btn-primary" id="addFriendButton"  href="#" data-toggle="modal" data-target="#addFriendMessage">add friend</a>' +
                     '</div>');
         },
-        loadByGroupId(groupId){
+
+        // 通过群组编号载入群组信息
+        loadByGroupId(groupId) {
             let group = GroupManagement.getDetailByGroupId(groupId)
             let html;
             if (group == null) {
@@ -539,8 +605,11 @@ var SideBarModule = {
             $('#profileBody').html(html);
         }
     },
+
+    // 群组列表侧边栏
     Groups: {
-        load : function () {
+        // 载入群组列表视图
+        load: function () {
             var allGroups = SideBarModule.Groups.get();
             var listDiv = document.getElementById("groupList");
             listDiv.innerHTML = '';
@@ -562,7 +631,9 @@ var SideBarModule = {
             }
             listDiv.innerHTML = html;
         },
-        get : function () {
+
+        // 从后台系统获取群组列表
+        get: function () {
             var allGroups = null;
             $.ajax({
                 async: false, //设置同步
@@ -583,6 +654,8 @@ var SideBarModule = {
             allGroups = eval("(" + allGroups + ")");
             return allGroups;
         },
+
+        // 群组消息通知（在群组标志旁添加红点）
         notice: function (groupId) {
             $('#groupAvatarId' + groupId).addClass('avatar-state-danger');
         },
@@ -592,34 +665,38 @@ var SideBarModule = {
 
 <!--    聊天模块 -->
 var ChatModule = {
+    // 聊天窗口的操作
     Window: {
+        // 打开聊天窗口加载内容
         open: function (to, type) {
             var chatHeaderUser = document.getElementById("chatHeaderUser");
+            $("#chatHeaderAction .dropdown-menu .dropdown-menu-right a").attr('id', type + ':' + to);
             var chatBody = document.getElementById("chatBody");
             chatBody.innerHTML = '';
             if (type == 0) {
                 let toName = UserManagement.getUserNameByUserId(to);
                 chatHeaderUser.innerHTML = '                    <figure class="avatar">\n' +
-                '                        <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">\n' +
-                '                    </figure>\n' +
-                '                    <div>\n' +
-                '                        <h5>' + toName + '</h5>\n' +
-                '                        <small class="text-success">\n' +
-                '                            <i></i>\n' +
-                '                        </small>\n' +
-                '                    </div>\n';
-            }
-            else if (type == 1) {
+                    '                        <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">\n' +
+                    '                    </figure>\n' +
+                    '                    <div>\n' +
+                    '                        <h5>' + toName + '</h5>\n' +
+                    '                        <small class="text-success">\n' +
+                    '                            <i></i>\n' +
+                    '                        </small>\n' +
+                    '                    </div>\n';
+            } else if (type == 1) {
                 let group = GroupManagement.getDetailByGroupId(to);
                 let toName = group.groupName;
                 chatHeaderUser.innerHTML = `                    <figure class="avatar">
-                                            <h6>Group chat</h6>
+                                            <img alt="image" src="./dist/icons/users.svg">
                                         </figure>
                                         <div>
-                                            <h5>` + toName + `</h5><i>(`+ group.membersCount +`)</i>
+                                            <h5>` + toName + `(` + group.membersCount + `)</h5>
                                         </div>`
             }
         },
+
+        // 用于动态调整聊天窗口底下消息输入栏
         messageForm: function (to, type) {
             $('#chatFooter form .btn-primary').attr('id', to);
             $('#chatFooter input').attr('id', type)
@@ -641,6 +718,8 @@ var ChatModule = {
                 return false;
             });
         },
+
+        // 用于收到聊天消息时将窗口滚动到底部
         autoScroll: function () {
             var chat_body = $(".layout .content .chat .chat-body");
             setTimeout(function () {
@@ -652,7 +731,10 @@ var ChatModule = {
             }, 200);
         }
     },
+
+    // 聊天相关的操作
     Chat: {
+        // 选择好友后，加载的与好友聊天方法
         withUser: function (to) {
             currentChatUser = to;
             currentChatGroup = null;
@@ -666,13 +748,13 @@ var ChatModule = {
             ChatModule.Window.autoScroll();
             for (var i = 0; i < messageRecord.length; i++) {
                 var jsonMessage = {
-                    id:messageRecord[i].id,
+                    id: messageRecord[i].id,
                     from: messageRecord[i].from,
                     to: messageRecord[i].to,
                     content: messageRecord[i].content,
                     type: messageRecord[i].type,
                     time: messageRecord[i].time,
-                    isReceived : messageRecord[i].isReceived
+                    isReceived: messageRecord[i].isReceived
                 };
                 Message.show(jsonMessage);
                 if (messageRecord[i].isReceived === 0 && messageRecord[i].to == currentUserId) {
@@ -680,7 +762,9 @@ var ChatModule = {
                 }
             }
         },
-        withGroup: function(to) {
+
+        // 选择群组后，加载的与群组聊天方法
+        withGroup: function (to) {
             currentChatUser = null;
             currentChatGroup = to;
             ChatModule.Window.messageForm(to, 1);
@@ -690,6 +774,20 @@ var ChatModule = {
             $('#groupId' + to).addClass('open-chat');
             $('.sidebar-group').attr('class', 'sidebar-group');
             ChatModule.Window.open(to, 1);
+            var messageRecord = Message.getRecord(to, 1);
+            for (var i = 0; i < messageRecord.length; i++) {
+                var jsonMessage = {
+                    id: messageRecord[i].id,
+                    from: messageRecord[i].from,
+                    to: messageRecord[i].to,
+                    content: messageRecord[i].content,
+                    type: messageRecord[i].type,
+                    time: messageRecord[i].time,
+                    isReceived: messageRecord[i].isReceived
+                };
+                Message.show(jsonMessage);
+            }
+            Message.cleanGroupReceived(to);
         },
     }
 };

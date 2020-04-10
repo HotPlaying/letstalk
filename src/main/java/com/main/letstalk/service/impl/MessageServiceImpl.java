@@ -42,4 +42,9 @@ public class MessageServiceImpl implements MessageService {
     public List<Message> findOffLineMessages(int toId) {
         return messageRepository.findOffLineMessages(toId);
     }
+
+    @Override
+    public void deleteGroupMessageReceived(int groupId, int userId) {
+        messageRepository.deleteAllByTypeAndFromAndTo(3, groupId, userId);
+    }
 }
