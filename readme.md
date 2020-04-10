@@ -1,7 +1,7 @@
 ### 基于SpringBoot、WebSocket的聊天系统
 
 用户界面截图
-![printScreen](src\main\resources\static\printScreen.png)
+![printScreen](src/main/resources/static/printScreen.png)
 
 
 这个项目是本人做的第二个**SpringBoot**项目，做之前并不知道**WebSocket**这个东西，现在对它已经有了较为充分的了解。
