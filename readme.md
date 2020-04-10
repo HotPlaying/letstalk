@@ -1,5 +1,8 @@
 ### 基于SpringBoot、WebSocket的聊天系统
 
+用户界面截图![printScreen](D:\_2020毕业论文项目\项目材料\正式项目\LetsTalk\src\main\resources\static\printScreen.png)
+
+
 这个项目是本人做的第二个**SpringBoot**项目，做之前并不知道**WebSocket**这个东西，现在对它已经有了较为充分的了解。
 
 数据库为**MySQL**，后端对数据库的操作采用默认**SpringJPA**(基于hibernate)，前端页面采用Spring **thymeleaf**模板。
