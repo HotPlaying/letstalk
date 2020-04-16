@@ -3,12 +3,9 @@
 用户界面截图
 ![printScreen](src/main/resources/static/printScreen.png)
 
+##### 相关技术栈
 
-这个项目是本人做的第二个**SpringBoot**项目，做之前并不知道**WebSocket**这个东西，现在对它已经有了充分的了解。
-
-数据库为**MySQL**，后端对数据库的操作采用默认**SpringJPA**(基于hibernate)，前端页面采用Spring **thymeleaf**模板。
-
-在做此项目前几乎没有什么前端经验，仅仅作过**HTML**、**CSS**的简单编写，**js**几乎没写过，也不知道怎么把这个项目的前端做出来，就先去网上找了个页面模板研究了起来，逐步地学习了js的编写并接触到 **JQuery** 和 **ajax**，现在对这些前端技术也有了全新的认识和了解。
+数据库为MySQL，数据库操作采用默认SpringJPA(基于hibernate)，前端页面采用thymeleaf模板，消息接收和推送由WebSocket服务器进行，前端事务处理主要由JQuery实现，数据通过ajax请求从后台控制器获得，页面样式效果主要由Bootstrap实现。
 
 ##### 现有功能
 
