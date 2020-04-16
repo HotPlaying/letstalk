@@ -9,9 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -61,6 +63,12 @@ public class LoginController {
     public String exit(HttpSession session) {  //退出登录
         session.removeAttribute("user");
         return "login";
+    }
+
+    @GetMapping("/getServerName")
+    @ResponseBody
+    public String getServerName(HttpServletRequest request) {
+        return request.getServerName();
     }
 
 }

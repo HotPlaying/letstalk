@@ -12,11 +12,13 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     public List<Message> findByToAndType(int to, int type);
 
+    public List<Message> findByFromAndToAndType(int from, int to, int type);
+
     public List<Message> findByType(int type);
 
     @Query("select  m from Message m where to = ?1 and isReceived = 0")
     public List<Message> findOffLineMessages(int toId);
 
     @Transactional
-    public void deleteAllByTypeAndFromAndTo(int type, int from, int to);
+    public void deleteMessagesByTypeAndFromAndTo(int type, int from, int to);
 }

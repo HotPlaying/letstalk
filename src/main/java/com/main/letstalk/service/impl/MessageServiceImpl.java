@@ -46,6 +46,17 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void deleteGroupMessageReceived(int groupId, int userId) {
-        messageRepository.deleteAllByTypeAndFromAndTo(3, groupId, userId);
+        messageRepository.deleteMessagesByTypeAndFromAndTo(3, groupId, userId);
     }
+
+    @Override
+    public List<Message> findByFromAndTypeAndTo(int from, int to, int type) {
+        return messageRepository.findByFromAndToAndType(from, to, type);
+    }
+
+    @Override
+    public void saveAll(List<Message> messages) {
+        messageRepository.saveAll(messages);
+    }
+
 }

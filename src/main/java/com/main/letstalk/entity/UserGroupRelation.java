@@ -1,5 +1,7 @@
 package com.main.letstalk.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ public class UserGroupRelation implements Serializable {
     private String userGName;
 
     @Column(name = "user_entime")
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime userEnTime;
 
     public int getUserId() {

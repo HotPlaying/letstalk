@@ -1,7 +1,13 @@
-var wsurl = 'ws://47.97.222.200:7788/' + currentUserId;
+function serverPath() {
+    var urlPath = window.document.location.href;  //浏览器显示地址 http://10.10.10.10:7788/login
+    var docPath = window.document.location.pathname; //文件在服务器相对地址 /user/id
+    var index = urlPath.indexOf(docPath);
+    return urlPath.substring(7, index);//服务器地址 http://10.10.10.10:7788
+}
+const WSURL = 'ws://' + serverPath() + '/' + currentUserId;
 // var wsurl = 'ws://192.168.0.102:7788/' + currentUserId;
 
-var websocket = new WebSocket(wsurl);
+const websocket = new WebSocket(WSURL);
 
 //连接成功建立的回调方法
 websocket.onopen = function () {
@@ -28,7 +34,7 @@ function closeWebSocket() {
 
 //处理收到的消息
 function handleReceiveMessage(message) {
-    var record = JSON.parse(message);
+    const record = JSON.parse(message);
     if (record.type === 0) {
         // 当前聊天窗口为此好友，直接显示
         if (currentChatUser === record.to) {

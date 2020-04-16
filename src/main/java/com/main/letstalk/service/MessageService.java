@@ -21,4 +21,8 @@ public interface MessageService {
     public List<Message> findOffLineMessages(int to);
 
     public void deleteGroupMessageReceived(int groupId, int userId);
+
+    public List<Message> findByFromAndTypeAndTo(int from, int to, int type);
+
+    public void saveAll(List<Message> messages);
 }

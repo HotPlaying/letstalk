@@ -55,6 +55,10 @@ public class MessageController {
     @PostMapping("/cleanGroupReceived")
     @ResponseBody
     public void cleanGroupReceived(int groupId, int userId) {
-        messageService.deleteGroupMessageReceived(groupId, userId);
+        List<Message> messages = messageService.findByFromAndTypeAndTo(groupId,userId,3);
+        for (Message m : messages) {
+            m.setIsReceived(1);
+        }
+        messageService.saveAll(messages);
     }
 }

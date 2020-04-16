@@ -1,5 +1,7 @@
 package com.main.letstalk.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;

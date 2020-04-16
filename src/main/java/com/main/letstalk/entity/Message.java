@@ -1,5 +1,7 @@
 package com.main.letstalk.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -27,6 +29,7 @@ public class Message {
     private int type;
 
     @Column(name = "time")
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime time;
 
     @Column(name = "is_received")
