@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 @Controller
 public class GroupController {
@@ -29,7 +30,10 @@ public class GroupController {
     @ResponseBody
     public String saveGroup(String jsonGroup) {
         Group group = JSONObject.parseObject(jsonGroup, Group.class);
-        return JSONObject.toJSONString(groupService.save(group));
+        group = groupService.save(group);
+        System.out.println(JSONObject.toJSONString(group));
+        ugrs.save(new UserGroupRelation(group.getCreatorId(), group.getGroupId(), LocalDateTime.now()));
+        return JSONObject.toJSONString(group);
     }
 
     @PostMapping("/joinGroup")
@@ -37,14 +41,11 @@ public class GroupController {
     public String joinGroup(int userId, int groupId) {
         if (userId != 0) {
             Group group = groupService.findByGroupId(groupId);
-            group.setGroupMembers(group.getGroupMembers() + userId + ",");
+            StringJoiner sj = new StringJoiner(",");
+            group.setGroupMembers(sj.add(group.getGroupMembers()).add(String.valueOf(userId)).toString());
             group.setMembersCount(group.getMembersCount()+1);
-            UserGroupRelation userGroupRelation = new UserGroupRelation();
-            userGroupRelation.setGroupId(groupId);
-            userGroupRelation.setUserId(userId);
-            userGroupRelation.setUserEnTime(LocalDateTime.now());
             groupService.save(group);
-            ugrs.save(userGroupRelation);
+            ugrs.save(new UserGroupRelation(userId, groupId, LocalDateTime.now()));
             return "success";
         } return "fail";
     }

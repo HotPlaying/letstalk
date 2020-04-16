@@ -15,11 +15,11 @@ var UserManagement = {
                 if (toUserName != null) {
                     userName = toUserName;
                 } else {
-                    alert('查询名字错误1');
+                    layer.alert('查询名字错误1');
                 }
             },
             error: function () {
-                alert('查询名字错误2');
+                layer.alert('查询名字错误2');
             }
         });
         return userName;
@@ -35,10 +35,10 @@ var UserManagement = {
                 if (user) {
                     currentUser = user;
                 } else
-                    alert('查询错误1');
+                    layer.alert('查询错误1');
             },
             error: function () {
-                alert('查询错误2');
+                layer.alert('查询错误2');
             }
         });
         return currentUser;
@@ -56,10 +56,10 @@ var UserManagement = {
                 if (userId) {
                     currentUserId = userId;
                 } else
-                    alert('查询错误1');
+                    layer.alert('查询错误1');
             },
             error: function (userId) {
-                alert('查询错误2');
+                layer.alert('查询错误2');
             }
         });
         return currentUserId;
@@ -82,7 +82,7 @@ var UserManagement = {
                     }
                 },
                 error: function (jsonUserDetail) {
-                    alert('request fail');
+                    layer.alert('request fail');
                 }
             });
             return userDetail;
@@ -90,6 +90,7 @@ var UserManagement = {
 
     // 请求后台系统添加好友关系记录
     addFriend: function (friendId) {
+        console.log(friendId);
         $.ajax({
             async: false,
             type: 'POST',
@@ -98,12 +99,12 @@ var UserManagement = {
             dataType: 'text',
             success: function (isSent) {
                 if (isSent != null)
-                    alert("Friend adding success.");
+                    layer.alert("Friend adding success.");
                 else
-                    alert("fail1");
+                    layer.alert("fail1");
             },
             error: function (isSent) {
-                alert("fail2");
+                layer.alert("fail2");
             }
         });
     },
@@ -118,11 +119,11 @@ var UserManagement = {
             dataType: 'text',
             success: function (result) {
                 if (result != null)
-                    alert('Save information success!');
-                else alert('!!');
+                    layer.alert('Save information success!');
+                else layer.alert('!!');
             },
             error: function (result) {
-                alert("!!!1")
+                layer.alert("!!!1")
             }
         });
     }
@@ -147,7 +148,7 @@ var GroupManagement = {
                 }
             },
             error: function (jsonGroupDetail) {
-                alert('request fail');
+                layer.alert('request fail');
             }
         });
         console.log(groupDetail)
@@ -156,6 +157,7 @@ var GroupManagement = {
 
     // 建立群组
     createGroup(group) {
+        console.log(group);
         $.ajax({
             async: false,
             url: '/saveGroup',
@@ -164,11 +166,11 @@ var GroupManagement = {
             dataType: 'json',
             success: function (newgroup) {
                 if (newgroup != null)
-                    alert('Create Group Success!/nYour group Id is [' + newgroup.groupId + ']');
-                else alert('!!');
+                    layer.msg('Create Group Success!\nYour group Id is [' + newgroup.groupId + ']', {icon: 1});
+                else layer.alert('!!');
             },
             error: function (result) {
-                alert("!!!1")
+                layer.alert("!!!1")
             }
         });
     },
@@ -183,12 +185,12 @@ var GroupManagement = {
             dataType: 'text',
             success: function (isSent) {
                 if (isSent != null)
-                    layer.msg('Group joining success.', {icon: 2});
+                    layer.msg('Group joining success.', {icon: 1});
                 else
-                    alert("fail1");
+                    layer.alert("fail1");
             },
             error: function (isSent) {
-                alert("fail2");
+                layer.alert("fail2");
             }
         });
     }
@@ -200,6 +202,7 @@ var GroupManagement = {
 <!--    全局变量 -->
 // 当前用户
 var currentUserId = UserManagement.getCurrentUserId();
+var currentUserName = UserManagement.getUserNameByUserId(currentUserId);
 
 // 当前窗口的聊天用户对象，初次载入时为空，未打开任何窗口
 var currentChatUser = null;
@@ -259,9 +262,12 @@ var Message = {
         }))
     },
 
-    // 显示消息
+    /**
+     * 显示单条消息气泡到聊天窗口
+     * @param record 待显示的消息；
+     */
     show: function (record) {
-        fromName = UserManagement.getUserNameByUserId(record.from)
+        let toName = arguments[1] ? arguments[1] : 0;
         $('.layout .content .chat .chat-body .messages').append(
             '<div class="message-item ' + (record.from == currentUserId ? 'outgoing-message' : '') + '">\n' +
             '                        <div class="message-avatar">\n' +
@@ -269,7 +275,7 @@ var Message = {
             '                                <img src="./dist/media/img/man_avatar1.jpg" class="rounded-circle" alt="image">\n' +
             '                            </figure>\n' +
             '                            <div>\n' +
-            '                                <h5>' + fromName + '</h5>\n' +
+            '                                <h5>' + (toName === 0 ? UserManagement.getUserNameByUserId(record.from) : toName) + '</h5>\n' +
             '                                <div class="time">' + record.time + '</div>\n' +
             '                            </div>\n' +
             '                        </div>\n' +
@@ -305,11 +311,11 @@ var Message = {
                 if (record != null) {
                     messageList = record.record;
                 } else {
-                    alert('查询错误1');
+                    layer.alert('查询错误1');
                 }
             },
             error: function (record) {
-                alert('查询错误2');
+                layer.alert('查询错误2');
             }
         });
         //eval方法不同于prase方法，外面加括号
@@ -320,7 +326,7 @@ var Message = {
     // 清理已经查看了的群组离线消息，防止再次通知
     cleanGroupReceived(groupId) {
         $.ajax({
-            url: '/cleanGrouupReceived',
+            url: '/cleanGroupReceived',
             data: {groupId: groupId, userId: currentUserId},
             type: 'post',
         });
@@ -423,10 +429,11 @@ var EjectModule = {
     createGroup() {
         let jsonGroup = {
             creatorId: currentUserId,
-            groupIntro: $(" input[ id='groupIntro' ] ").val(),
+            groupIntro: $(" textarea[ id='groupIntro' ] ").val(),
             groupName: $(" input[ id='groupName' ] ").val(),
         };
-        GroupManagement.createGroup(jsonGroup);
+        GroupManagement.createGroup(JSON.stringify(jsonGroup));
+        SideBarModule.Groups.load();
     },
 
     // 查找群组并选择是否添加
@@ -483,11 +490,11 @@ var SideBarModule = {
                     if (friends != null) {
                         allFriends = friends.friendList;
                     } else {
-                        alert('查询错误1');
+                        layer.alert('查询错误1');
                     }
                 },
                 error: function (friends) {
-                    alert('查询错误2');
+                    layer.alert('查询错误2');
                 }
             });
             //划重点划重点，这里的eval方法不同于prase方法，外面加括号
@@ -516,14 +523,14 @@ var SideBarModule = {
                                     <h6>` + UserManagement.getUserNameByUserId(message.from) + `</h6>
                                     <hr>
                                     <p class="text-muted">` + message.content + `</p>`);
-                message = JSON.stringify(message);
                 $('#agreeAddingInvitaion').click(function () {
+                    console.log("friendId from : " + message.from);
                     UserManagement.addFriend(message.from);
-                    Message.setReceived(message);
+                    Message.setReceived(JSON.stringify(message));
                     SideBarModule.Friends.load();
                 });
                 $('#rejectAddingInvitaion').click(function () {
-                    Message.setReceived(message);
+                    Message.setReceived(JSON.stringify(message));
                     SideBarModule.Friends.load();
                 });
 
@@ -617,7 +624,7 @@ var SideBarModule = {
             for (var i = 0; i < allGroups.length; i++) {
                 html += `<li class="list-group-item" id="groupId` + allGroups[i].groupId + `" onclick=ChatModule.Chat.withGroup(` + allGroups[i].groupId + `)>
                             <div>
-                                <figure class="avatar" id="groupAvatarId` + allGroups[i].userId + `">
+                                <figure class="avatar" id="groupAvatarId` + allGroups[i].groupId + `">
                                     <i data-feather="users"></i>
                                 </figure>
                             </div>
@@ -643,11 +650,11 @@ var SideBarModule = {
                     if (groups != null) {
                         allGroups = groups.groupList;
                     } else {
-                        alert('查询错误1');
+                        layer.alert('查询错误1');
                     }
                 },
                 error: function (groups) {
-                    alert('查询错误2');
+                    layer.alert('查询错误2');
                 }
             });
             //划重点划重点，这里的eval方法不同于prase方法，外面加括号
@@ -738,6 +745,7 @@ var ChatModule = {
         withUser: function (to) {
             currentChatUser = to;
             currentChatGroup = null;
+            let toName = UserManagement.getUserNameByUserId(to);
             ChatModule.Window.messageForm(to, 0);
             ChatModule.Window.open(to, 0);
             $('.list-group-item').attr('class', 'list-group-item');
@@ -746,8 +754,8 @@ var ChatModule = {
             $('.sidebar-group').attr('class', 'sidebar-group');
             var messageRecord = Message.getRecord(to, 0);
             ChatModule.Window.autoScroll();
-            for (var i = 0; i < messageRecord.length; i++) {
-                var jsonMessage = {
+            for (let i = 0; i < messageRecord.length; i++) {
+                const jsonMessage = {
                     id: messageRecord[i].id,
                     from: messageRecord[i].from,
                     to: messageRecord[i].to,
@@ -756,7 +764,7 @@ var ChatModule = {
                     time: messageRecord[i].time,
                     isReceived: messageRecord[i].isReceived
                 };
-                Message.show(jsonMessage);
+                Message.show(jsonMessage, (jsonMessage.from==currentUserId ? currentUserName : toName));
                 if (messageRecord[i].isReceived === 0 && messageRecord[i].to == currentUserId) {
                     Message.setReceived(JSON.stringify(messageRecord[i]));
                 }
@@ -775,8 +783,8 @@ var ChatModule = {
             $('.sidebar-group').attr('class', 'sidebar-group');
             ChatModule.Window.open(to, 1);
             var messageRecord = Message.getRecord(to, 1);
-            for (var i = 0; i < messageRecord.length; i++) {
-                var jsonMessage = {
+            for (let i = 0; i < messageRecord.length; i++) {
+                const jsonMessage = {
                     id: messageRecord[i].id,
                     from: messageRecord[i].from,
                     to: messageRecord[i].to,

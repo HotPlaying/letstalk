@@ -3,6 +3,7 @@ package com.main.letstalk.repository;
 import com.main.letstalk.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,5 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("select  m from Message m where to = ?1 and isReceived = 0")
     public List<Message> findOffLineMessages(int toId);
 
+    @Transactional
     public void deleteAllByTypeAndFromAndTo(int type, int from, int to);
 }

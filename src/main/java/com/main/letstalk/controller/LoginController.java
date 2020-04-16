@@ -24,7 +24,7 @@ public class LoginController {
     @GetMapping({"/login"})
     public String getLoginModel(Model model) {
         model.addAttribute("user", new User());
-        return "/login";
+        return "login";
     }
 
     @GetMapping("/register")
@@ -54,7 +54,7 @@ public class LoginController {
         //为新用户录入个人详细信息记录
         UserDetail userDetail = new UserDetail(user.getUserId());
         userDetailService.save(userDetail);
-        return "./login";
+        return "login";
     }
 
     @GetMapping("/exit")

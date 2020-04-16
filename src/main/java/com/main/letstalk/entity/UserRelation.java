@@ -8,6 +8,13 @@ import java.util.Objects;
 @Table(name = "user_relation")
 @IdClass(UserRelationKey.class)
 public class UserRelation implements Serializable {
+    public UserRelation(){}
+    public UserRelation(int userIdA, int userIdB, int relationStatus) {
+        this.userIdA = userIdA;
+        this.userIdB = userIdB;
+        this.relationStatus = relationStatus;
+    }
+
     @Id
     @Column(name = "user_id_a")
     private int userIdA;

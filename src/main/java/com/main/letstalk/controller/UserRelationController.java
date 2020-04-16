@@ -35,10 +35,7 @@ public class UserRelationController {
     @ResponseBody
     public String addFriend(int ida, int idb) {
         //User user = (User) httpSession.getAttribute("user");
-        UserRelation userRelation = new UserRelation();
-        userRelation.setUserIdA(ida);
-        userRelation.setUserIdB(idb);
-        userRelation.setRelationStatus(1);
+        UserRelation userRelation = new UserRelation(ida, idb, 0);
         System.out.println(JSONObject.toJSONString(userRelation));
         userRelationService.save(userRelation);
         return "success";

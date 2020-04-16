@@ -1,10 +1,7 @@
 package com.main.letstalk.entity;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -34,6 +31,8 @@ public class Group {
     @Column(name = "group_members")
     private String groupMembers;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getGroupId() {
         return groupId;
     }

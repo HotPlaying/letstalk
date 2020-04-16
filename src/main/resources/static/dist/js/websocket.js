@@ -1,4 +1,5 @@
-var wsurl = 'ws://192.168.0.102:7788/' + currentUserId;
+var wsurl = 'ws://47.97.222.200:7788/' + currentUserId;
+// var wsurl = 'ws://192.168.0.102:7788/' + currentUserId;
 
 var websocket = new WebSocket(wsurl);
 
@@ -43,7 +44,6 @@ function handleReceiveMessage(message) {
         }
     }
     else if (record.type === 1) {
-        console.log(currentChatGroup);
         // 收到群组消息，且当前窗口为该群组，直接显示消息
         if (currentChatGroup === record.to) {
             Message.show(record);
@@ -58,7 +58,8 @@ function handleReceiveMessage(message) {
         SideBarModule.Friends.friendAddNotice(record);
     }
     // 收到离线未读群组消息
-    else if (record.type === 3 && record.isReceived === 0){
+    else if (record.type === 3){
+        console.log("get group offline message");
         SideBarModule.Groups.notice(record.from);
     }
 }

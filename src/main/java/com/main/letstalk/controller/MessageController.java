@@ -53,6 +53,7 @@ public class MessageController {
     }
 
     @PostMapping("/cleanGroupReceived")
+    @ResponseBody
     public void cleanGroupReceived(int groupId, int userId) {
         messageService.deleteGroupMessageReceived(groupId, userId);
     }

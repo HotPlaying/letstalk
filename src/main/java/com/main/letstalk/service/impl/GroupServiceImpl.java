@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -16,13 +15,15 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public Group save(Group group) {
-        if (group.getGroupId() == 0) {
+        if ((group.getGroupId()) == 0) {
             group.setCreatedTime(LocalDate.now());
             group.setMembersCount(1);
-            group.setGroupMembers(String.valueOf(group.getCreatorId())+",");
+            group.setGroupMembers(String.valueOf(group.getCreatorId()));
         }
-        return groupRepository.save(group);
+        return groupRepository.saveAndFlush(group);
     }
+
+
 
     @Override
     public Group findByGroupId(int groupId) {

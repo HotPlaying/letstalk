@@ -22,8 +22,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         User user = (User) session.getAttribute("user");
         if (user == null || user.getUserId() <= 0) {
             //转向登录页面
-            response.sendRedirect("/login");
-//            request.getRequestDispatcher("/login").forward(request,response);
+            response.sendRedirect("login");
             return false;
         }
         return HandlerInterceptor.super.preHandle(request, response, handler);

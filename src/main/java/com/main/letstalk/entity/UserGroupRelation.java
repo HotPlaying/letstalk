@@ -10,6 +10,14 @@ import java.util.Objects;
 @Table(name = "user_group_relation")
 @IdClass(UserGroupRelationKey.class)
 public class UserGroupRelation implements Serializable {
+    public UserGroupRelation(){}
+
+    public UserGroupRelation(int userId, int groupId, LocalDateTime userEnTime) {
+        this.userId = userId;
+        this.groupId = groupId;
+        this.userEnTime = userEnTime;
+    }
+
     @Id
     @Column(name = "user_id")
     private int userId;

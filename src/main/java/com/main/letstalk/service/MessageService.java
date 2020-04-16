@@ -13,6 +13,11 @@ public interface MessageService {
 
     public List<Message> findByType(int type);
 
+    /**
+     * 获取所有类型的离线消息
+     * @param to 接收者编号
+     * @return 所有接收者编号和接收状态为0的消息
+     */
     public List<Message> findOffLineMessages(int to);
 
     public void deleteGroupMessageReceived(int groupId, int userId);
