@@ -16,12 +16,12 @@ public class MessageServiceImpl implements MessageService {
     private MessageRepository messageRepository;
 
     @Override
-    public void save(Message message) {
+    public Message save(Message message) {
         if (message.getTime() == null) {
             message.setTime(LocalDateTime.now());
             message.setIsReceived(0);
         }
-        messageRepository.save(message);
+        return messageRepository.save(message);
     }
 
     @Override

@@ -9,11 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Controller
@@ -23,10 +21,10 @@ public class LoginController {
     @Resource
     private UserDetailService userDetailService;
 
-    @GetMapping({"/login"})
+    @GetMapping({"/LetsTalk"})
     public String getLoginModel(Model model) {
         model.addAttribute("user", new User());
-        return "login";
+        return "LetsTalk";
     }
 
     @GetMapping("/register")
@@ -36,12 +34,11 @@ public class LoginController {
         return "register";
     }
 
-    @PostMapping("/login")
-    public String login(User user, HttpSession session, RedirectAttributes attr)  {
+    @PostMapping("/LetsTalk")
+    public String login(User user, HttpSession session)  {
         user = userService.checkUser(user);
         if (user == null) {
-            attr.addFlashAttribute("fail", "账号或密码不正确");
-            return "redirect:/login";
+            return "redirect:/LetsTalk";
         }
         else {
             session.setAttribute("user", user);
@@ -56,19 +53,13 @@ public class LoginController {
         //为新用户录入个人详细信息记录
         UserDetail userDetail = new UserDetail(user.getUserId());
         userDetailService.save(userDetail);
-        return "login";
+        return "LetsTalk";
     }
 
     @GetMapping("/exit")
     public String exit(HttpSession session) {  //退出登录
         session.removeAttribute("user");
-        return "login";
-    }
-
-    @GetMapping("/getServerName")
-    @ResponseBody
-    public String getServerName(HttpServletRequest request) {
-        return request.getServerName();
+        return "redirect:/LetsTalk";
     }
 
 }

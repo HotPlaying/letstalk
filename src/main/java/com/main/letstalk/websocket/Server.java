@@ -1,6 +1,7 @@
 package com.main.letstalk.websocket;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.main.letstalk.entity.Message;
 import com.main.letstalk.entity.UserGroupRelation;
@@ -61,39 +62,44 @@ public class Server {
         addOnlineCount();                 //在线数加1
 
         //获取用户所有未查看的消息
-        List<Message> offLineMessages = messageService.findOffLineMessages(Integer.parseInt(userId));
+        List<Message> offLineMessages =
+                messageService.findOffLineMessages(Integer.parseInt(userId));
         // 逐条发送至前端
         if (!offLineMessages.isEmpty()) {
             for (Message m : offLineMessages) {
                 sendMessage(m);
             }
         }
-        System.out.println(LocalDateTime.now() + "---有新连接 " + userId + " 加入！当前在线人数为" + getOnlineCount());
+        System.out.println(LocalDateTime.now() + "---有新连接 " +
+                userId + " 加入！当前在线人数为" + getOnlineCount());
     }
 
     @OnClose
     public void onClose(@PathParam("userId") String userId) {
         onLineList.remove(userId);        //从map中删除
         subOnlineCount();                   //在线数减1
-        System.out.println(LocalDateTime.now() + "---有一连接 " + userId + " 关闭！当前在线人数为" + getOnlineCount());
+        System.out.println(LocalDateTime.now() + "---有一连接 " +
+                userId + " 关闭！当前在线人数为" + getOnlineCount());
     }
 
     @OnMessage
     public void onMessage(String JsonMessage) {
         Message message = JSON.parseObject(JsonMessage, Message.class);
-        messageService.save(message);
         int messageType = message.getType();
         //类型为 0 表示一对一消息
         if (messageType == 0 || messageType == 2) {
-            //不管收到什么，先发给用户自己，显示到用户界面
-            if (messageType == 0)
+            messageService.save(message);
+            if (messageType == 0)//一对一消息，先发给用户自己，显示到用户界面
                 sendMessage(message);
             //若对方在在线表中，发送给对方
             if (onLineList.containsKey(String.valueOf(message.getTo()))) {
                 onLineList.get(String.valueOf(message.getTo())).sendMessage(message);
             }
             //若对方不在线，则不作操作，将消息发送任务交给离线消息推送机制
-        } else {
+        } else {    //类型为 1 则表示群消息
+            //不管如何先把接收状态调整为1，尽可能避免会出现的推送问题
+            message.setIsReceived(1);
+            messageService.save(message);
             //获取群成员列表
             System.out.println(JSON.toJSON(message));
             List<UserGroupRelation> ugrList = uggr.findByGroupId(message.getTo());
@@ -106,7 +112,8 @@ public class Server {
                 }
                 //离线的群成员存储单独的群消息，用于离线消息推送
                 else {
-                    messageService.save(new Message(message.getTo(), Integer.parseInt(userId), 3,
+                    messageService.save(new Message(message.getTo(),
+                            Integer.parseInt(userId), 3,
                             "GROUP NOTICE"));
                 }
             }
@@ -132,8 +139,8 @@ public class Server {
 
 
     /*
-        本来想把下面几个方法一起封装到一个类中类里，不知道为什么就没办法创建serverEndPoint bean了
-    索性保持原样
+        本来想把下面几个方法一起封装到一个类中类里，不知道为什么
+        就没办法创建serverEndPoint bean了，索性保持原样
      */
     public static synchronized int getOnlineCount() {
         return onlineCount;

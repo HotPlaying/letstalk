@@ -1,11 +1,19 @@
 ### 基于SpringBoot、WebSocket的聊天系统
 
-用户界面截图
+效果展示账号：
+
+| Id   | username | password |
+| ---- | -------- | -------- |
+|  1   | zhangsan | zhangsan |
+|  2   | lisi     | lisi     |
+|  3   | 群主     | qunzhu   |
+
+**用户界面截图**
 ![printScreen](src/main/resources/static/printScreen.png)
 
 ##### 相关技术栈
 
-数据库为MySQL，数据库操作采用默认SpringJPA(基于hibernate)，前端页面采用thymeleaf模板，消息接收和推送由WebSocket服务器进行，前端事务处理主要由JQuery实现，数据通过ajax请求从后台控制器获得，页面样式效果主要由Bootstrap实现。
+数据库为 MySQL，数据库操作由 Spring Data JPA 实现，前端页面由 thymeleaf 模板引擎驱动，消息接收和推送由 WebSocket 实现，前端事务处理主要由 JQuery 实现，数据通过 ajax 请求从后台控制器获得，后台控制器基本采用RESTful规范传输JSON格式数据，页面样式效果主要由 Bootstrap 实现。
 
 ##### 现有功能
 

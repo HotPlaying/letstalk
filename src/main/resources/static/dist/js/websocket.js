@@ -35,20 +35,19 @@ function closeWebSocket() {
 //处理收到的消息
 function handleReceiveMessage(message) {
     const record = JSON.parse(message);
+    //type == 0，一对一消息
     if (record.type === 0) {
         // 当前聊天窗口为此好友，直接显示
-        if (currentChatUser === record.to) {
+        if (currentChatUser === record.to || currentChatUser === record.from) {
             Message.show(record);
-        }
-        // 当前聊天窗口非此好友，通知
-        else if (record.isReceived === 0 || currentChatObject !== record.to) {
+        } // 当前聊天窗口非此好友，通知
+        else if (record.isReceived === 0) {
             SideBarModule.Friends.notice(record.from);
-        }
-        // 其它情况，通报异常
+        } // 其它情况，通报异常
         else {
             console.log('exception in handleReceivedMessage (type === 0)');
         }
-    }
+    } //type == 1，群组消息
     else if (record.type === 1) {
         // 收到群组消息，且当前窗口为该群组，直接显示消息
         if (currentChatGroup === record.to) {
@@ -58,14 +57,11 @@ function handleReceiveMessage(message) {
         else {
             SideBarModule.Groups.notice(record.to);
         }
-    }
-    // 收到好友添加请求
+    } // type == 2，好友添加请求
     else if (record.type === 2) {
         SideBarModule.Friends.friendAddNotice(record);
-    }
-    // 收到离线未读群组消息
+    } // type == 3，离线未读群组消息
     else if (record.type === 3){
-        console.log("get group offline message");
         SideBarModule.Groups.notice(record.from);
     }
 }
