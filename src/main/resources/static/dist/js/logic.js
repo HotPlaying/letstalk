@@ -78,7 +78,7 @@ var UserManagement = {
                     if (jsonUserDetail != null) {
                         userDetail = jsonUserDetail;
                     } else {
-                        console.log('User is not exist');
+
                     }
                 },
                 error: function (jsonUserDetail) {
@@ -90,7 +90,6 @@ var UserManagement = {
 
     // 请求后台系统添加好友关系记录
     addFriend: function (friendId) {
-        console.log(friendId);
         $.ajax({
             async: false,
             type: 'POST',
@@ -151,13 +150,11 @@ var GroupManagement = {
                 layer.alert('request fail');
             }
         });
-        console.log(groupDetail)
         return groupDetail;
     },
 
     // 建立群组
     createGroup(group) {
-        console.log(group);
         $.ajax({
             async: false,
             url: '/saveGroup',
@@ -247,12 +244,17 @@ $('#createGroupButton').click(function () {
 $('#searchGroupButton').click(function () {
     EjectModule.searchGroup();
 });
+// 点击 聊天栏头部的查看信息
+$('#dropdownProfile').click(function () {
+    currentChatUser != null ? SideBarModule.Profile.loadById(currentChatUser)
+        : SideBarModule.Profile.loadByGroupId(currentChatGroup);
+});
 <!--   ./ 事件触发 -->
 <!-- ./ 全局变量与事件触发 -->
 
 <!-- 信息模块 -->
 var Message = {
-    // 将消息交由后台服务器处理
+    // 将消息发送，由后台服务器处理
     send: function (to, content, type) {
         websocket.send(JSON.stringify({
             from: currentUserId,
@@ -309,7 +311,14 @@ var Message = {
             dataType: 'json',
             success: function (record) {
                 if (record != null) {
-                    messageList = record.record;
+                    if (type != 0) {
+                        messageList = {
+                            messages: record.messages,
+                            usernames: record.usernames
+                        }
+                    } else {
+                        messageList = record.record;
+                    }
                 } else {
                     layer.alert('查询错误1');
                 }
@@ -319,11 +328,16 @@ var Message = {
             }
         });
         //eval方法不同于prase方法，外面加括号
-        messageList = eval("(" + messageList + ")");
+        if (type != 0) {
+            messageList.messages = eval("(" + messageList.messages + ")");
+            messageList.usernames = eval("(" + messageList.usernames + ")");
+        } else {
+            messageList = eval("(" + messageList + ")");
+        }
         return messageList;
     },
 
-    // 清理已经查看了的群组离线消息，防止再次通知
+    // 清理已经查看了的群组离线通知用的消息，防止再次通知
     cleanGroupReceived(groupId) {
         $.ajax({
             url: '/cleanGroupReceived',
@@ -345,6 +359,7 @@ var EjectModule = {
             SideBarModule.Profile.loadById(userId, 1);
             $('#sendAddFriendRequestButton').click(function () {
                 EjectModule.addFriendMessage(userId);
+                layer.alert('Friend adding request has been sent!\n Please wait for the response.', {icon: 1});
             });
         }
     },
@@ -419,9 +434,7 @@ var EjectModule = {
             userEmail: $(" input[ id='email' ] ").val(),
             userGender: $(" select[ id='gender']").val()
         };
-        console.log("1:   " + jsonUserDetail);
         jsonUserDetail = JSON.stringify(jsonUserDetail);
-        console.log(jsonUserDetail);
         UserManagement.saveUserDetail(jsonUserDetail);
     },
 
@@ -440,7 +453,7 @@ var EjectModule = {
     searchGroup() {
         var groupId = $(" input[ id='groupId']").val();
         if (groupId !== null) {
-            SideBarModule.Profile.loadByGroupId(groupId);
+            SideBarModule.Profile.loadByGroupId(groupId, 1);
             $('#joinGroupButton').click(function () {
                 GroupManagement.joinGroup(groupId);
                 SideBarModule.Groups.load();
@@ -475,7 +488,6 @@ var SideBarModule = {
                             </div>
                         </li>`;
             }
-            console.log("Friends loads");
             listDiv.innerHTML = html;
         },
 
@@ -524,7 +536,6 @@ var SideBarModule = {
                                     <hr>
                                     <p class="text-muted">` + message.content + `</p>`);
                 $('#agreeAddingInvitaion').click(function () {
-                    console.log("friendId from : " + message.from);
                     UserManagement.addFriend(message.from);
                     Message.setReceived(JSON.stringify(message));
                     SideBarModule.Friends.load();
@@ -605,11 +616,13 @@ var SideBarModule = {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="text-center">
-                        <a class="btn btn-primary" id="joinGroupButton" href="#"">join Group</a>
                     </div>`;
             $('#profileBody').html(html);
+            if (arguments[1]) {
+                $('#profileBody').append(`<div class="text-center">
+                        <a class="btn btn-primary" id="joinGroupButton" href="#"">join Group</a>
+                    </div>`);
+            }
         }
     },
 
@@ -677,7 +690,7 @@ var ChatModule = {
         // 打开聊天窗口加载内容
         open: function (to, type) {
             var chatHeaderUser = document.getElementById("chatHeaderUser");
-            $("#chatHeaderAction .dropdown-menu .dropdown-menu-right a").attr('id', type + ':' + to);
+            //$(".chat-header-action .dropdown-menu .dropdown-menu-right .dropdown-item a").attr('id', type + ':' + to);
             var chatBody = document.getElementById("chatBody");
             chatBody.innerHTML = '';
             if (type == 0) {
@@ -716,7 +729,6 @@ var ChatModule = {
 
                 message = $.trim(message);
                 if (message) {
-                    console.log('Sending to: ' + to);
                     Message.send(to, message, type);
                     input.val('');
                 } else {
@@ -743,18 +755,28 @@ var ChatModule = {
     Chat: {
         // 选择好友后，加载的与好友聊天方法
         withUser: function (to) {
+            // 设置当前窗口聊天对象
             currentChatUser = to;
             currentChatGroup = null;
+            // 获取聊天对象的用户名
             let toName = UserManagement.getUserNameByUserId(to);
+            // 调整消息发送表单
             ChatModule.Window.messageForm(to, 0);
+            // 聊天窗口刷新载入
             ChatModule.Window.open(to, 0);
+            // 将好友列表无关列表项置默认状态(样式变回白色)
             $('.list-group-item').attr('class', 'list-group-item');
+            // 将好友列表头像的红点消除
             $('#avatarId' + to).attr('class', 'avatar');
+            // 将好友列表对应列表项置打开状态(样式变为灰色)
             $('#friendId' + to).addClass('open-chat');
+            // （小窗口下）关闭好友列表
             $('.sidebar-group').attr('class', 'sidebar-group');
+            // 获取聊天记录
             var messageRecord = Message.getRecord(to, 0);
-            ChatModule.Window.autoScroll();
+            // 逐条显示
             for (let i = 0; i < messageRecord.length; i++) {
+                // 解析json为对象
                 const jsonMessage = {
                     id: messageRecord[i].id,
                     from: messageRecord[i].from,
@@ -764,7 +786,9 @@ var ChatModule = {
                     time: messageRecord[i].time,
                     isReceived: messageRecord[i].isReceived
                 };
+                // 显示消息到聊天窗口
                 Message.show(jsonMessage, (jsonMessage.from==currentUserId ? currentUserName : toName));
+                // 置推送来的新消息接收状态为 1
                 if (messageRecord[i].isReceived === 0 && messageRecord[i].to == currentUserId) {
                     Message.setReceived(JSON.stringify(messageRecord[i]));
                 }
@@ -776,24 +800,23 @@ var ChatModule = {
             currentChatUser = null;
             currentChatGroup = to;
             ChatModule.Window.messageForm(to, 1);
-            // ChatModule.Window.open(to);
             $('.list-group-item').attr('class', 'list-group-item');
             $('#groupAvatarId' + to).attr('class', 'avatar');
             $('#groupId' + to).addClass('open-chat');
             $('.sidebar-group').attr('class', 'sidebar-group');
             ChatModule.Window.open(to, 1);
             var messageRecord = Message.getRecord(to, 1);
-            for (let i = 0; i < messageRecord.length; i++) {
+            for (let i = 0; i < messageRecord.messages.length; i++) {
                 const jsonMessage = {
-                    id: messageRecord[i].id,
-                    from: messageRecord[i].from,
-                    to: messageRecord[i].to,
-                    content: messageRecord[i].content,
-                    type: messageRecord[i].type,
-                    time: messageRecord[i].time,
-                    isReceived: messageRecord[i].isReceived
+                    id: messageRecord.messages[i].id,
+                    from: messageRecord.messages[i].from,
+                    to: messageRecord.messages[i].to,
+                    content: messageRecord.messages[i].content,
+                    type: messageRecord.messages[i].type,
+                    time: messageRecord.messages[i].time,
+                    isReceived: messageRecord.messages[i].isReceived
                 };
-                Message.show(jsonMessage);
+                Message.show(jsonMessage, messageRecord.usernames[i]);
             }
             Message.cleanGroupReceived(to);
         },

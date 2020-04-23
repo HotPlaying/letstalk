@@ -16,7 +16,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
 
     public List<Message> findByType(int type);
 
-    @Query("select  m from Message m where to = ?1 and isReceived = 0")
+    @Query("select m from Message m where to = ?1 and isReceived = 0")
     public List<Message> findOffLineMessages(int toId);
 
     @Transactional

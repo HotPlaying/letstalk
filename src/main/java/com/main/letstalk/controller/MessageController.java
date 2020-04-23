@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.main.letstalk.entity.Message;
 import com.main.letstalk.service.MessageService;
+import com.main.letstalk.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -18,6 +19,9 @@ import java.util.Map;
 public class MessageController {
     @Resource
     private MessageService messageService;
+    @Resource
+    private UserService userService;
+
 
     @PostMapping("/getMessageRecord")
     @ResponseBody
@@ -46,9 +50,15 @@ public class MessageController {
     @ResponseBody
     public Map<String, Object> getGroupMessageRecord(int groupId) {
         List<Message> messages = messageService.findGroupType(groupId);
-        String messageListString = JSONArray.toJSONString(messages);
+        List<String> usernames = new ArrayList<>();
+        for (Message m : messages) {
+            usernames.add(userService.findByUserId(m.getFrom()).getUserName());
+        }
+        String jsonMessages = JSONArray.toJSONString(messages);
+        String jsonUsernames = JSONArray.toJSONString(usernames);
         Map<String, Object> record = new HashMap<>();
-        record.put("record", messageListString);
+        record.put("messages", jsonMessages);
+        record.put("usernames", jsonUsernames);
         return record;
     }
 
@@ -58,7 +68,7 @@ public class MessageController {
         List<Message> messages = messageService.findByFromAndTypeAndTo(groupId,userId,3);
         for (Message m : messages) {
             m.setIsReceived(1);
+            messageService.save(m);
         }
-        messageService.saveAll(messages);
     }
 }

@@ -5,7 +5,7 @@ import com.main.letstalk.entity.Message;
 import java.util.List;
 
 public interface MessageService {
-    public void save(Message message);
+    public Message save(Message message);
 
     public List<Message> findByFrom(int from);
 
