@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.main</groupId>
     <artifactId>letstalk</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>Letstalk</name>
     <description>Demo project for Spring Boot</description>
 
@@ -63,6 +63,13 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 表示依赖不会传递 -->
         </dependency>
 
         <!--Webjars版本定位工具（前端）-->
