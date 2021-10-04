@@ -1,12 +1,17 @@
 package com.main.letstalk.entity;
 
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Data
+@Table(name = "user_detail")
 @Entity
 public class UserDetail {
     @Id
@@ -46,60 +51,4 @@ public class UserDetail {
         this.userId = userId;
     }
 
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
-
-    public String getUserAddr() {
-        return userAddr;
-    }
-
-    public void setUserAddr(String userAddr) {
-        this.userAddr = userAddr;
-    }
-
-    public Gender getUserGender() {
-        return userGender;
-    }
-
-    public void setUserGender(Gender userGender) {
-        this.userGender = userGender;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public String getUserIntro() {
-        return userIntro;
-    }
-
-    public void setUserIntro(String userIntro) {
-        this.userIntro = userIntro;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserDetail that = (UserDetail) o;
-        return userId == that.userId &&
-                Objects.equals(userAddr, that.userAddr) &&
-                userGender == that.userGender &&
-                Objects.equals(userEmail, that.userEmail) &&
-                Objects.equals(userIntro, that.userIntro);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userId, userAddr, userGender, userEmail, userIntro);
-    }
 }

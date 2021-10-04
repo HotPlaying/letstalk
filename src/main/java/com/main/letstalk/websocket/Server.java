@@ -52,7 +52,8 @@ public class Server {
 
     /**
      * 用户登陆后检查离线消息，存储到线性表，逐条发送到前端
-     * @param userId 登录用户的编号
+     *
+     * @param userId  登录用户的编号
      * @param session 获取用户前端独一的会话session，用于即时通讯
      */
     @OnOpen
@@ -112,9 +113,13 @@ public class Server {
                 }
                 //离线的群成员存储单独的群消息，用于离线消息推送
                 else {
-                    messageService.save(new Message(message.getTo(),
-                            Integer.parseInt(userId), 3,
-                            "GROUP NOTICE"));
+                    Message m = Message.builder()
+                            .from(message.getTo())
+                            .to(Integer.parseInt(userId))
+                            .type(3)
+                            .content("GROUP NOTICE")
+                            .build();
+                    messageService.save(m);
                 }
             }
         }
