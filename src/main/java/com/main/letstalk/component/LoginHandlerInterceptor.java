@@ -1,6 +1,7 @@
 package com.main.letstalk.component;
 
 import com.main.letstalk.entity.User;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 public class LoginHandlerInterceptor implements HandlerInterceptor {
-    private String[] res = {".js", ".css", ".htm", "/LetsTalk", "/register","/save" , "/error", "jpg", "gif", "png"};
+    private final String[] res = {".js", ".css", ".htm", "/LetsTalk", "/register","/save" , "/error", "jpg", "gif", "png"};
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -21,6 +22,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         if (user == null || user.getUserId() <= 0) {
+            request.setAttribute("user", new User());
             //转向登录页面
             response.sendRedirect("LetsTalk");
             return false;

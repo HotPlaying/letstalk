@@ -3,12 +3,16 @@ package com.main.letstalk.websocket;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.main.letstalk.component.RequestLogAspect;
 import com.main.letstalk.entity.Message;
 import com.main.letstalk.entity.UserGroupRelation;
 import com.main.letstalk.service.MessageService;
 import com.main.letstalk.service.UserGroupRelationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -25,10 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @ServerEndpoint(value = "/{userId}")
 public class Server {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);;
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
     //在线人数列表,设计为线程安全的
-    private static Map<String, Server> onLineList = new ConcurrentHashMap<>();
+    private static final Map<String, Server> onLineList = new ConcurrentHashMap<>();
 
     private Session session;    // 用于即时通讯
 
@@ -66,12 +71,12 @@ public class Server {
         List<Message> offLineMessages =
                 messageService.findOffLineMessages(Integer.parseInt(userId));
         // 逐条发送至前端
-        if (!offLineMessages.isEmpty()) {
+        if (!CollectionUtils.isEmpty(offLineMessages)) {
             for (Message m : offLineMessages) {
                 sendMessage(m);
             }
         }
-        System.out.println(LocalDateTime.now() + "---有新连接 " +
+        logger.info(LocalDateTime.now() + "---有新连接 " +
                 userId + " 加入！当前在线人数为" + getOnlineCount());
     }
 
@@ -79,7 +84,7 @@ public class Server {
     public void onClose(@PathParam("userId") String userId) {
         onLineList.remove(userId);        //从map中删除
         subOnlineCount();                   //在线数减1
-        System.out.println(LocalDateTime.now() + "---有一连接 " +
+        logger.info(LocalDateTime.now() + "---有一连接 " +
                 userId + " 关闭！当前在线人数为" + getOnlineCount());
     }
 

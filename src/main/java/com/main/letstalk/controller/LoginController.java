@@ -21,7 +21,7 @@ public class LoginController {
     @Resource
     private UserDetailService userDetailService;
 
-    @GetMapping({"/LetsTalk"})
+    @GetMapping({"/", "/LetsTalk"})
     public String getLoginModel(Model model) {
         model.addAttribute("user", new User());
         return "LetsTalk";
@@ -35,7 +35,7 @@ public class LoginController {
     }
 
     @PostMapping("/LetsTalk")
-    public String login(User user, HttpSession session)  {
+    public String login(Model model, User user, HttpSession session)  {
         user = userService.checkUser(user);
         if (user == null) {
             return "redirect:/LetsTalk";
