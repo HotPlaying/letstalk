@@ -1,8 +1,8 @@
 # 日志配置
-logging:
-  level:
-    com.main.letstalk: debug
-    org.springframework: warn
+#logging:
+#  level:
+#    com.main.letstalk: debug
+#    org.springframework: warn
 #  resources:
 #    chain:
 #      strategy:
